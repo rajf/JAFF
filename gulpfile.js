@@ -4,7 +4,10 @@ var config = {
     siteURL     :   'http://jaff.dev:8001',
     srcDir      :   'app',
     distDir   :   'dist',
-    twigExtension   : '.html.twig'
+    twig   : {
+        extension :'.html.twig',
+        cache: false
+    }
 };
 
 config.paths = {
@@ -21,20 +24,21 @@ config.paths = {
         ],
         dest: config.distDir
     },
-    templates: {
+    pages: {
         src: [
-            config.srcDir + '/templates/**/*.twig',
-            '!**/partials/**'
+            config.srcDir + '/pages/**/*.yaml'
         ]
     },
-    data: {
+    templates: {
         src: [
-            config.srcDir + '/data'
+            config.srcDir + '/templates'
         ]
     }
 };
 
 var gulp = require('gulp'),
+    twig = require('twig'),
+    marked = require('marked'),
     path = require('path'),
     fs = require('fs'),
     jsYaml = require('js-yaml');
@@ -68,6 +72,43 @@ gulp.task('scripts', function () {
         .pipe(plugins.jshint.reporter(require('jshint-stylish')))
         .pipe(plugins.size());
 });
+
+gulp.task('pages', function () {
+    return gulp.src(config.paths.pages.src)
+        .pipe(plugins.fn(function(file) {
+            var jsonData = jsYaml.safeLoad(fs.readFileSync(file.path, 'utf-8')),
+                twigOpts = {
+                    path: config.paths.templates.src + '/' +jsonData.template,
+                    async: false,
+                    base: config.paths.templates.src
+                },
+                template;
+
+            // load any imports
+            for (var i in jsonData.imports) {
+                var importFilePath = config.srcDir + '/' + jsonData.imports[i];
+                // parse yaml
+                if (fileExists(importFilePath) && path.extname(importFilePath) == '.yaml')
+                    jsonData['imports'][i] = jsYaml.safeLoad(fs.readFileSync(importFilePath, 'utf-8'));
+
+                // parse markdown
+                if (fileExists(importFilePath) && path.extname(importFilePath) == '.md')
+                    jsonData['imports'][i] = marked(fs.readFileSync(importFilePath, 'utf-8'));
+            }
+
+            twig.cache(config.twig.cache);
+            template = twig.twig(twigOpts);
+
+            file.contents = new Buffer(template.render(jsonData));
+        }))
+        .pipe(plugins.rename(function (path) {
+            path.extname = ".html";
+        }))
+        .pipe(gulp.dest(config.distDir))
+        .pipe(plugins.size());
+});
+
+
 
 gulp.task('twig', function () {
     return gulp.src(config.paths.templates.src)

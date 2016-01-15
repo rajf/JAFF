@@ -1,0 +1,18 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+INDEX TWIG
+
+{% for item in imports.menus.list %}
+    <p>{{ item|e }}</p>
+{% endfor %}
+
+{{ imports.footer.name }}
+TEST
+{{ title }}
+
+{{ imports.block1 }}
+
+{% endblock %}
+
+{% include 'partials/test.html.twig' %}

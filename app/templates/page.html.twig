@@ -3,6 +3,11 @@
 {% block content %}
 INDEX TWIG
 
+    {{ dump(global) }}
+    #{{ global.google_analytics }}
+
+{{ global.test }}
+
 {% for item in imports.menus.list %}
     <p>{{ item|e }}</p>
 {% endfor %}

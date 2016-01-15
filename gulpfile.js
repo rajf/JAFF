@@ -10,6 +10,8 @@ var config = {
     }
 };
 
+config.globalYaml = config.srcDir + '/data/global.yaml';
+
 config.paths = {
 
     styles: {
@@ -84,7 +86,14 @@ gulp.task('pages', function () {
                 },
                 template;
 
+            // parse global yaml
+            if (fileExists(config.globalYaml) && path.extname(config.globalYaml) == '.yaml')
+                jsonData['global'] = jsYaml.safeLoad(fs.readFileSync(config.globalYaml, 'utf-8'));
+
+            //console.log(jsonData);
+
             // load any imports
+            // TODO: Refactor to handle nested imports
             for (var i in jsonData.imports) {
                 var importFilePath = config.srcDir + '/' + jsonData.imports[i];
                 // parse yaml
@@ -108,43 +117,6 @@ gulp.task('pages', function () {
         .pipe(plugins.size());
 });
 
-
-
-gulp.task('twig', function () {
-    return gulp.src(config.paths.templates.src)
-        .pipe(plugins.data(function (file) {
-                // Get yaml file path
-                var yamlFile = config.paths.data.src + '/' + path.basename(file.path, config.twigExtension) + '.yaml';
-
-                // Check file exists
-                if(fileExists(yamlFile)) {
-                    // convert yaml to json
-                    var jsonData = jsYaml.safeLoad(fs.readFileSync(yamlFile, 'utf-8'));
-
-                    // load any imports
-                    for (var i in jsonData.imports) {
-                        yamlFile = config.paths.data.src + '/' + jsonData.imports[i];
-                        if (fileExists(yamlFile))
-                            jsonData['imports'][i] = jsYaml.safeLoad(fs.readFileSync(yamlFile, 'utf-8'));
-                    }
-                    return jsonData;
-                }
-            })
-            .on('error', function (e) {
-                console.log(e);
-            })
-        )
-        .pipe(plugins.twig({
-            includes: [
-                config.paths.templates.src
-            ]
-        }))
-        .pipe(plugins.rename(function (path) {
-            path.extname = "";
-        }))
-        .pipe(gulp.dest(config.distDir))
-        .pipe(plugins.size());
-});
 
 gulp.task('html', ['twig', 'styles', 'scripts'], function () {
     var jsFilter = plugins.filter('**/*.js');

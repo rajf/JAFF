@@ -1,0 +1,13 @@
+{% extends 'page-a.html.twig' %}
+
+{% block content %}
+    {{ parent() }}
+
+    {% if imports.list is not null and imports.list is not empty %}
+    <ul>
+    {% for item in imports.list.items %}
+        <li>{{ item }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}

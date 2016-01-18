@@ -1,9 +1,8 @@
 imports:
-  menus: data/menus.yaml
-  footer: data/footer.yaml
-  block1: markdown/block1.md
-  block2: markdown/block2.md
+  content: markdown/content.md
 
-template: page.html.twig
+template: page-a.html.twig
+
+jumbotron: partials/jumbotron.html.twig
 
 title: Homepage

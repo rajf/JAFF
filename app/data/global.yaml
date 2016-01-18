@@ -1,2 +1,7 @@
 google_analytics: UA-XXXXX-X
-test: teser
+
+nav_primary:
+  Homes: '/'
+  About: '#'
+  Contact: '#'
+  Test: /test/test.html

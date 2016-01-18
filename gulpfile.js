@@ -113,25 +113,25 @@ gulp.task('pages', function () {
         .pipe(plugins.rename(function (path) {
             path.extname = ".html";
         }))
+        .pipe(plugins.useref.assets({searchPath: '{.tmp,app}'}))
+        .pipe(plugins.useref.restore())
+        .pipe(plugins.useref())
         .pipe(gulp.dest(config.distDir))
         .pipe(plugins.size());
 });
 
 
-gulp.task('html', ['twig', 'styles', 'scripts'], function () {
+gulp.task('twig', ['pages', 'styles', 'scripts'], function () {
     var jsFilter = plugins.filter('**/*.js');
     var cssFilter = plugins.filter('**/*.css');
 
-    return gulp.src('app/*.html')
-        .pipe(plugins.useref.assets({searchPath: '{.tmp,app}'}))
+    return gulp.src('app/*.' + config.twig.extension)
         .pipe(jsFilter)
         .pipe(plugins.uglify())
         .pipe(jsFilter.restore())
         .pipe(cssFilter)
         .pipe(plugins.csso())
         .pipe(cssFilter.restore())
-        .pipe(plugins.useref.restore())
-        .pipe(plugins.useref())
         .pipe(gulp.dest(config.distDir))
         .pipe(plugins.size());
 });
@@ -156,7 +156,7 @@ gulp.task('fonts', function () {
 });
 
 gulp.task('extras', function () {
-    return gulp.src(['app/*.*', '!app/*.html'], { dot: true })
+    return gulp.src(['app/*.*', 'app/*.html'], { dot: true })
         .pipe(gulp.dest(config.distDir));
 });
 
@@ -164,7 +164,7 @@ gulp.task('clean', function () {
     return gulp.src(['.tmp', config.distDir], { read: false }).pipe(plugins.clean());
 });
 
-gulp.task('build', ['html', 'images', 'fonts', 'extras']);
+gulp.task('build', ['twig', 'images', 'fonts', 'extras']);
 
 gulp.task('default', ['clean'], function () {
     gulp.start('build');
@@ -174,9 +174,8 @@ gulp.task('connect', function () {
     var connect = require('connect');
     var app = connect()
         .use(require('connect-livereload')({ port: 35729 }))
-        .use(connect.static('app'))
-        .use(connect.static('.tmp'))
-        .use(connect.directory('app'));
+        .use(connect.static('dist'))
+        .use(connect.directory('dist'));
 
     require('http').createServer(app)
         .listen(9000)
@@ -185,7 +184,7 @@ gulp.task('connect', function () {
         });
 });
 
-gulp.task('serve', ['connect', 'styles'], function () {
+gulp.task('serve', ['connect', 'twig'], function () {
     require('opn')('http://localhost:9000');
 });
 
@@ -199,7 +198,7 @@ gulp.task('wiredep', function () {
         }))
         .pipe(gulp.dest('app/styles'));
 
-    gulp.src('app/*.html')
+    gulp.src('app/*.' + config.twig.extension)
         .pipe(wiredep({
             directory: 'app/bower_components',
             exclude: ['bootstrap-sass-official']
@@ -213,7 +212,7 @@ gulp.task('watch', ['connect', 'serve'], function () {
     // watch for changes
 
     gulp.watch([
-        'app/*.html',
+        'app/*.' + config.twig.extension,
         '.tmp/styles/**/*.css',
         'app/scripts/**/*.js',
         'app/images/**/*'
@@ -221,6 +220,9 @@ gulp.task('watch', ['connect', 'serve'], function () {
         server.changed(file.path);
     });
 
+    gulp.watch('app/templates/**/*' + config.twig.extension, ['twig']);
+    gulp.watch('app/data/**/*', ['twig']);
+    gulp.watch('app/markdown/**/*', ['twig']);
     gulp.watch('app/styles/**/*.scss', ['styles']);
     gulp.watch('app/scripts/**/*.js', ['scripts']);
     gulp.watch('app/images/**/*', ['images']);

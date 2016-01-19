@@ -1,7 +1,7 @@
 google_analytics: UA-XXXXX-X
 
 nav_primary:
-  Homes: '/'
+  Home: '/'
   About: '#'
   Contact: '#'
   Test: /test/test.html

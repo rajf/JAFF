@@ -212,10 +212,7 @@ gulp.task('watch', ['connect', 'serve'], function () {
     // watch for changes
 
     gulp.watch([
-        'app/*.' + config.twig.extension,
-        '.tmp/styles/**/*.css',
-        'app/scripts/**/*.js',
-        'app/images/**/*'
+        'dist/**/*'
     ]).on('change', function (file) {
         server.changed(file.path);
     });

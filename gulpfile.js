@@ -258,7 +258,7 @@ gulp.task('serve', ['build'], function () {
     });
 
     gulp.watch(config.srcDir + '/**/*' + config.twig.extension, ['twig']);
-    gulp.watch(config.srcDir + '/**/*.yml', ['pages']);
+    gulp.watch(config.srcDir + '/**/*.yaml', ['pages']);
     gulp.watch(config.srcDir + '/**/*.md', ['pages']);
     gulp.watch(config.srcDir + '/**/*.scss', ['styles']);
     gulp.watch(config.srcDir + '/**/*.js', ['scripts']);

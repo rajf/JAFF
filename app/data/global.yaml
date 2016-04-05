@@ -4,4 +4,5 @@ nav_primary:
   Home: '/'
   About: '#'
   Contact: '#'
-  Test: /test/test.html
+  Test: /examples/test.html
+  Styleguide: /examples/styleguide.html

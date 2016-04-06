@@ -237,7 +237,7 @@ gulp.task('pages', function () {
             bowerJson: require('./bower.json'),
             ignorePath: /^\/|(\.\.\/){1,2}/
         }))
-        .pipe(gulp.dest(config.distDir))
+        .pipe(gulp.dest(config.tempDir))
         .pipe(plugins.size())
         .on('error', function (error) {
             console.error('' + error);
@@ -258,11 +258,25 @@ gulp.task('images', function () {
         });
 });
 
-gulp.task('fonts', function () {
+gulp.task('bower', function() {
+
+    var jsFilter = plugins.filter('**/*.js'),
+        cssFilter = plugins.filter('**/*.css'),
+        fontsFilter = plugins.filter('**/*.{eot,svg,ttf,woff}');
+
     return gulp.src(plugins.mainBowerFiles())
-        .pipe(plugins.filter('**/*.{eot,svg,ttf,woff}'))
+        .pipe(jsFilter)
+        .pipe(plugins.concat('vendor.js'))
+        .pipe(gulp.dest(config.tempDir + config.paths.vendor.dest))
+        .pipe(jsFilter.restore())
+        .pipe(cssFilter)
+        .pipe(plugins.concat('vendor.css'))
+        .pipe(gulp.dest(config.tempDir + config.paths.vendor.dest))
+        .pipe(cssFilter.restore())
+        .pipe(fontsFilter)
         .pipe(plugins.flatten())
         .pipe(gulp.dest(config.distDir + '/fonts'))
+        .pipe(fontsFilter.restore())
         .pipe(plugins.size())
         .on('error', function (error) {
             console.error('' + error);
@@ -277,23 +291,23 @@ gulp.task('extras', function () {
         });
 });
 
-// inject bower components
-gulp.task('wiredep', function () {
-    var wiredep = require('wiredep').stream;
-
-    gulp.src('app/styles/*.scss')
-        .pipe(wiredep({
-            directory: 'app/bower_components'
-        }))
-        .pipe(gulp.dest('app/styles'));
-
-    gulp.src('app/**/*.' + config.twig.extension)
-        .pipe(wiredep({
-            directory: 'app/bower_components',
-            bowerJson: require('./bower.json')
-        }))
-        .pipe(gulp.dest('app'));
-});
+//// inject bower components
+//gulp.task('wiredep', function () {
+//    var wiredep = require('wiredep').stream;
+//
+//    gulp.src('app/styles/*.scss')
+//        .pipe(wiredep({
+//            directory: 'bower_components'
+//        }))
+//        .pipe(gulp.dest('app/styles'));
+//
+//    gulp.src('app/**/*.' + config.twig.extension)
+//        .pipe(wiredep({
+//            directory: 'bower_components',
+//            bowerJson: require('./bower.json')
+//        }))
+//        .pipe(gulp.dest('app'));
+//});
 
 gulp.task('serve', ['build'], function () {
     var browserSync = require('browser-sync').create();
@@ -316,7 +330,7 @@ gulp.task('serve', ['build'], function () {
     gulp.watch(config.paths.styles.src, ['styles']);
     gulp.watch(config.paths.scripts.src, ['scripts']);
     gulp.watch(config.paths.images.src, ['images']);
-    gulp.watch('./bower.json', ['wiredep']);
+    gulp.watch('./bower.json', ['pages']);
 
     gulp.watch([
             config.tempDir + '/**/*',
@@ -329,11 +343,12 @@ gulp.task('serve', ['build'], function () {
 
 });
 
-gulp.task('build', ['styles', 'scripts', 'modernizr', 'images', 'fonts', 'extras', 'pages']);
+gulp.task('build', ['styles', 'scripts', 'modernizr', 'images', 'extras', 'pages', 'bower']);
 
 gulp.task('minify', ['build'], function () {
     var jsFilter = plugins.filter('**/*.js'),
-        cssFilter = plugins.filter('**/*.css');
+        cssFilter = plugins.filter('**/*.css'),
+        htmlFilter = plugins.filter('**/*.html');
 
     var processors = [
         require('cssnano')
@@ -341,7 +356,6 @@ gulp.task('minify', ['build'], function () {
 
     return gulp.src(config.tempDir + '/**/*')
         .pipe(jsFilter)
-        .pipe(plugins.notify({ message: 'jsFilter' }))
         .pipe(plugins.uglify())
         .pipe(plugins.rename({ suffix: '.min' }))
         .pipe(jsFilter.restore())
@@ -350,13 +364,23 @@ gulp.task('minify', ['build'], function () {
         .pipe(plugins.postcss(processors))
         .pipe(plugins.rename({ suffix: '.min' }))
         .pipe(cssFilter.restore())
-        .pipe(plugins.useref({searchPath: '{.tmp}'}))
+        .pipe(htmlFilter)
+        .pipe(plugins.useref())
+        .pipe(htmlFilter.restore())
         .pipe(gulp.dest(config.distDir))
         .pipe(plugins.size());
 });
 
 gulp.task('dist', ['clean'], function () {
     gulp.start('minify');
+});
+
+gulp.task('deploy', ['dist'], function() {
+    return gulp.src(config.distDir + '/**/*')
+        .pipe(plugins.ghPages())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('default', ['clean'], function () {

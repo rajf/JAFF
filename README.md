@@ -19,7 +19,7 @@ Inspired by [Assemble.io](http://assemble.io/) and other flat file content edito
 ### app/data
 For YAML files. YAML used for ease of editing. This is parsed to JSON in the build so could be replaces quite easily with pure JSOn files if you prefer.
 ### app/data/global.yaml
-Anything in here is available to all templates. Good for menus, lists, etc. See gulp file for mplimentation.
+Anything in here is available to all templates. Good for menus, lists, etc. See gulp file for implimentation.
 
 ### app/content
 For your Markdown files.

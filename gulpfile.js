@@ -375,12 +375,9 @@ gulp.task('dist', ['clean'], function () {
     gulp.start('minify');
 });
 
-gulp.task('deploy', ['dist'], function() {
+gulp.task('deploy', function() {
     return gulp.src(config.distDir + '/**/*')
-        .pipe(plugins.ghPages())
-        .on('error', function (error) {
-            console.error('' + error);
-        });
+        .pipe(plugins.ghPages());
 });
 
 gulp.task('default', ['clean'], function () {

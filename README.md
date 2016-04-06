@@ -7,7 +7,10 @@ Inspired by [Assemble.io](http://assemble.io/) and other flat file content edito
 >- Yaml for data
 >- Markdown for content blocks
 >- Twig for templating
+>- SCSS for styles
 >- Gulp for build
+>- Modular Javacsript
+>- Modular styles
 
 ## Install
 - Run npm install
@@ -24,7 +27,7 @@ For your Markdown files.
 ### app/pages
 The scructure and naming of files in this folder determines your site structure.
 
-### Confguration
+### Configuration
 Custom paths can be configured in Gulp file.
 
 ## TODO

@@ -1,5 +1,5 @@
 imports:
-  content: markdown/content.md
+  content: ../readme.md
 
 template: page-a.html.twig
 

@@ -18,13 +18,14 @@ var gulp = require('gulp'),
 */
 var config = {
     srcDir                  : 'app',
-    tempDir                  : '.tmp',
+    tempDir                 : '.tmp',
     distDir                 : 'dist',
     twig   : {
         extension           :'.html.twig',
         cache               : false
     },
-    serverPort              : 9000
+    serverPort              : 9000,
+    concatModules           : true
 };
 
 config.globalYaml = config.srcDir + '/data/global.yaml';
@@ -39,9 +40,16 @@ config.paths = {
     },
     scripts: {
         src: [
-            config.srcDir + '/scripts/**/*.js'
+            config.srcDir + '/scripts/**/*.js',
+            config.srcDir + '/modules/**/*.js'
         ],
         dest: '/scripts'
+    },
+    images: {
+        src: [
+            config.srcDir + '/images/**/*'
+        ],
+        dest: '/images'
     },
     pages: {
         src: [
@@ -51,6 +59,11 @@ config.paths = {
     templates: {
         src: [
             config.srcDir + '/templates'
+        ]
+    },
+    modules: {
+        src: [
+            config.srcDir + '/modules'
         ]
     },
     vendor: {
@@ -84,6 +97,17 @@ gulp.task('clean', function () {
     ], {force:true});
 });
 
+gulp.task('legacyStyles', ['styles'], function () {
+    gulp.src(config.tempDir + config.paths.styles.dest + '**/*.css')
+        .pipe(plugins.noMediaQueries())
+        .pipe(plugins.concat('ie.css'))
+        .pipe(gulp.dest(config.tempDir + config.paths.styles.dest))
+        .pipe(plugins.size())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
+});
+
 gulp.task('styles', function () {
     var processors = [
         require('autoprefixer')({
@@ -108,12 +132,12 @@ gulp.task('styles', function () {
     ];
 
     return gulp.src('app/styles/main.scss')
-        .pipe(plugins.sass({
-            style: 'expanded',
-            precision: 10
-        }))
         .pipe(plugins.sassGlobImport())
-        .pipe(plugins.sass().on('error', plugins.sass.logError))
+        .pipe(plugins.sass({
+                style: 'expanded',
+                precision: 10
+            })
+            .on('error', plugins.sass.logError))
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.postcss(processors))
         .pipe(plugins.sourcemaps.write())
@@ -122,12 +146,19 @@ gulp.task('styles', function () {
 });
 
 gulp.task('scripts', function () {
+    var modulesFilter = plugins.filter(['*', '!modules']);
+
     return gulp.src(config.paths.scripts.src)
         .pipe(plugins.jshint())
         .pipe(plugins.jshint.reporter(require('jshint-stylish')))
+        .pipe(plugins.if(!config.concatModules,modulesFilter))
         .pipe(plugins.concat('main.js'))
+        .pipe(plugins.if(!config.concatModules,modulesFilter.restore()))
         .pipe(gulp.dest(config.tempDir + config.paths.scripts.dest))
-        .pipe(plugins.size());
+        .pipe(plugins.size())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('modernizr', function() {
@@ -154,16 +185,23 @@ gulp.task('modernizr', function() {
         .pipe(plugins.uglify())
         .pipe(plugins.rename({suffix: '.min'}))
         .pipe(gulp.dest(config.distDir + config.paths.vendor.dest))
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('pages', function () {
+
+    var wiredep = require('wiredep').stream;
+
     return gulp.src(config.paths.pages.src)
         .pipe(plugins.fn(function(file) {
             var jsonData = jsYaml.safeLoad(fs.readFileSync(file.path, 'utf-8')),
                 twigOpts = {
                     path: config.paths.templates.src + '/' +jsonData.template,
                     async: false,
-                    base: config.paths.templates.src
+                    base: config.paths.templates.src,
+                    namespaces: { 'modules': config.paths.modules.src }
                 },
                 template;
 
@@ -194,22 +232,30 @@ gulp.task('pages', function () {
         .pipe(plugins.rename(function (path) {
             path.extname = ".html";
         }))
-        //.pipe(plugins.useref.assets({searchPath: '{.tmp,app}'}))
-        //.pipe(plugins.useref.restore())
-        .pipe(plugins.useref())
+        .pipe(wiredep({
+            directory: './bower_components',
+            bowerJson: require('./bower.json'),
+            ignorePath: /^\/|(\.\.\/){1,2}/
+        }))
         .pipe(gulp.dest(config.distDir))
-        .pipe(plugins.size());
+        .pipe(plugins.size())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('images', function () {
-    return gulp.src('app/images/**/*')
+    return gulp.src(config.paths.images.src)
         .pipe(plugins.cache(plugins.imagemin({
             optimizationLevel: 3,
             progressive: true,
             interlaced: true
         })))
-        .pipe(gulp.dest(config.distDir + '/images'))
-        .pipe(plugins.size());
+        .pipe(gulp.dest(config.distDir + config.paths.images.dest))
+        .pipe(plugins.size())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('fonts', function () {
@@ -217,12 +263,18 @@ gulp.task('fonts', function () {
         .pipe(plugins.filter('**/*.{eot,svg,ttf,woff}'))
         .pipe(plugins.flatten())
         .pipe(gulp.dest(config.distDir + '/fonts'))
-        .pipe(plugins.size());
+        .pipe(plugins.size())
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 gulp.task('extras', function () {
     return gulp.src(['app/*.*', 'app/*.html'], { dot: true })
-        .pipe(gulp.dest(config.distDir));
+        .pipe(gulp.dest(config.distDir))
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 });
 
 // inject bower components
@@ -235,10 +287,10 @@ gulp.task('wiredep', function () {
         }))
         .pipe(gulp.dest('app/styles'));
 
-    gulp.src('app/*.' + config.twig.extension)
+    gulp.src('app/**/*.' + config.twig.extension)
         .pipe(wiredep({
             directory: 'app/bower_components',
-            exclude: ['bootstrap-sass']
+            bowerJson: require('./bower.json')
         }))
         .pipe(gulp.dest('app'));
 });
@@ -252,27 +304,32 @@ gulp.task('serve', ['build'], function () {
         server: {
             baseDir: [
                 config.tempDir,
-                config.distDir
+                config.distDir,
+                './'
             ]
         }
     });
 
-    gulp.watch(config.srcDir + '/**/*' + config.twig.extension, ['twig']);
+    gulp.watch(config.srcDir + '/**/*' + config.twig.extension, ['pages']);
     gulp.watch(config.srcDir + '/**/*.yaml', ['pages']);
     gulp.watch(config.srcDir + '/**/*.md', ['pages']);
-    gulp.watch(config.srcDir + '/**/*.scss', ['styles']);
-    gulp.watch(config.srcDir + '/**/*.js', ['scripts']);
-    gulp.watch(config.srcDir + '/**/*', ['images']);
-    gulp.watch(config.srcDir + 'bower.json', ['wiredep']);
+    gulp.watch(config.paths.styles.src, ['styles']);
+    gulp.watch(config.paths.scripts.src, ['scripts']);
+    gulp.watch(config.paths.images.src, ['images']);
+    gulp.watch('./bower.json', ['wiredep']);
 
     gulp.watch([
-        config.tempDir + '/**/*',
-        config.distDir + '/**/*'
-    ]).on("change", browserSync.reload);
+            config.tempDir + '/**/*',
+            config.distDir + '/**/*'
+        ])
+        .on("change", browserSync.reload)
+        .on('error', function (error) {
+            console.error('' + error);
+        });
 
 });
 
-gulp.task('build', ['pages', 'styles', 'scripts', 'modernizr', 'images', 'fonts', 'extras']);
+gulp.task('build', ['styles', 'scripts', 'modernizr', 'images', 'fonts', 'extras', 'pages']);
 
 gulp.task('minify', ['build'], function () {
     var jsFilter = plugins.filter('**/*.js'),
@@ -293,6 +350,7 @@ gulp.task('minify', ['build'], function () {
         .pipe(plugins.postcss(processors))
         .pipe(plugins.rename({ suffix: '.min' }))
         .pipe(cssFilter.restore())
+        .pipe(plugins.useref({searchPath: '{.tmp}'}))
         .pipe(gulp.dest(config.distDir))
         .pipe(plugins.size());
 });

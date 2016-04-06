@@ -1,7 +1,0 @@
-imports:
-  list: data/list.yaml
-  content: markdown/styleguide.md
-
-template: page-b.html.twig
-
-title: Test page

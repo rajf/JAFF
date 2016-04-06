@@ -1,8 +1,0 @@
-google_analytics: UA-XXXXX-X
-
-nav_primary:
-  Home: '/'
-  About: '#'
-  Contact: '#'
-  Test: /examples/test.html
-  Styleguide: /examples/styleguide.html

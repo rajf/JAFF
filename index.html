@@ -1,0 +1,91 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <title>JAFF</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    
+
+
+    <link rel="stylesheet" href="/jaff/styles/main.min.css">
+
+    <script src="/jaff/vendor/modernizr.min.js"></script>
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="container">
+    <header class="header">
+        <ul class="">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/examples/test.html">Test Page</a></li>
+                    <li><a href="/examples/styleguide.html">Styleguide</a></li>
+                    <li><a href="http://google.co.uk">External link</a></li>
+                </ul>
+    </header>
+
+    <div class="content-wrapper">
+                        
+    <h1 id="jaff">JAFF</h1>
+<h2 id="just-another-front-end-framework">Just Another Front-end Framework</h2>
+<p>Inspired by <a href="http://assemble.io/">Assemble.io</a> and other flat file content editors.</p>
+<blockquote>
+<p>Features:</p>
+<ul>
+<li>Yaml for data</li>
+<li>Markdown for content blocks</li>
+<li>Twig for templating</li>
+<li>SCSS for styles</li>
+<li>Gulp for build</li>
+<li>Modular Javacsript</li>
+<li>Modular styles</li>
+</ul>
+</blockquote>
+<h2 id="install">Install</h2>
+<ul>
+<li>Run npm install</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<h3 id="app-data">app/data</h3>
+<p>For YAML files. YAML used for ease of editing. This is parsed to JSON in the build so could be replaces quite easily with pure JSOn files if you prefer.</p>
+<h3 id="app-data-global-yaml">app/data/global.yaml</h3>
+<p>Anything in here is available to all templates. Good for menus, lists, etc. See gulp file for implimentation.</p>
+<h3 id="app-content">app/content</h3>
+<p>For your Markdown files.</p>
+<h3 id="app-pages">app/pages</h3>
+<p>The scructure and naming of files in this folder determines your site structure.</p>
+<h3 id="configuration">Configuration</h3>
+<p>Custom paths can be configured in Gulp file.</p>
+<h2 id="todo">TODO</h2>
+<ul>
+<li>Possibly recursively check for imports but may be overkill</li>
+</ul>
+
+
+    </div>
+
+    <footer class="footer">
+        <p>♥ from RAJF</p>
+    </footer>
+</div>
+
+<!-- Google Analytics: change global.yaml > google_analytics to be your site's ID. -->
+<script>
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+        e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+        e.src='//www.google-analytics.com/analytics.js';
+        r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','UA-XXXXX-X');ga('send','pageview');
+</script>
+
+<script src="/jaff/vendor/vendor.min.js"></script>
+
+<script src="/jaff/scripts/main.min.js"></script>
+</body>
+</html>

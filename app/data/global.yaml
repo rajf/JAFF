@@ -2,7 +2,6 @@ google_analytics: UA-XXXXX-X
 
 nav_primary:
   Home: '/'
-  About: '#'
-  Contact: '#'
-  Test: /examples/test.html
+  Test Page: /examples/test.html
   Styleguide: /examples/styleguide.html
+  External link: 'http://google.co.uk'

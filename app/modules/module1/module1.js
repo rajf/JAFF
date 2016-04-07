@@ -5,7 +5,7 @@
     var _self = ns;
 
     ns.init = function(){
-        console.log('sidebar');
+        console.log('module 1 init');
     };
 
     window.JAFF.events.on('pageReady', function () {

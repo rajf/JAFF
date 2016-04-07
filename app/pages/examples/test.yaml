@@ -1,0 +1,9 @@
+imports:
+  content: markdown/loremipsum.md
+  list: data/list.yaml
+
+template: page-b.html.twig
+
+jumbotron: partials/jumbotron.html.twig
+
+title: Test page

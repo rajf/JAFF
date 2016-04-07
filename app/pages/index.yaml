@@ -3,6 +3,4 @@ imports:
 
 template: page-a.html.twig
 
-jumbotron: partials/jumbotron.html.twig
-
 title: Homepage

@@ -7,50 +7,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-    <!-- build:css vendor/vendor.min.css -->
+    <!-- build:css /jaff/vendor/vendor.min.css -->
     <!-- bower:css -->
     <!-- endbower -->
     <!-- endbuild -->
 
 
-    <!-- build:css styles/main.min.css -->
-    <link rel="stylesheet" href="styles/main.css">
+    <!-- build:css /jaff/styles/main.min.css -->
+    <link rel="stylesheet" href="/styles/main.css">
     <!-- endbuild -->
 
-    <script src="vendor/modernizr.min.js"></script>
-
+    <!-- build:js /jaff/vendor/modernizr.min.js -->
+    <script src="/vendor/modernizr.min.js"></script>
+    <!-- endbuild -->
 </head>
 <body>
 <!--[if lt IE 10]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 
-{%
-include "modules::/sidebar/sidebar.html.twig"
-with {
-'class': 'sidebar--left',
-'overlay': false
-}
-%}
-
 <div class="container">
-    <div class="header">
+    <header class="header">
         <ul class="">
         {% for key, value in global.nav_primary %}
             <li><a href="{{ value }}">{{ key }}</a></li>
         {% endfor %}
         </ul>
+    </header>
+
+    <div class="content-wrapper">
+        {% block content %}{% endblock %}
     </div>
 
-    <div class="row">
-        <div class="">
-            {% block content %}{% endblock %}
-        </div>
-    </div>
-
-    <div class="footer">
+    <footer class="footer">
         <p>♥ from RAJF</p>
-    </div>
+    </footer>
 </div>
 
 <!-- Google Analytics: change global.yaml > google_analytics to be your site's ID. -->
@@ -63,13 +54,13 @@ with {
     ga('create','{{ global.google_analytics }}');ga('send','pageview');
 </script>
 
-<!-- build:js vendor/vendor.min.js -->
+<!-- build:js /jaff/vendor/vendor.min.js -->
 <!-- bower:js -->
 <!-- endbower -->
 <!-- endbuild -->
 
-<!-- build:js scripts/main.min.js -->
-<script src="scripts/main.js"></script>
+<!-- build:js /jaff/scripts/main.min.js -->
+<script src="/scripts/main.js"></script>
 <!-- endbuild -->
 </body>
 </html>

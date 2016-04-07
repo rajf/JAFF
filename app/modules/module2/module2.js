@@ -5,7 +5,7 @@
     var _self = ns;
 
     ns.init = function(){
-        console.log('overlay');
+        console.log('module 2 init');
     };
 
     window.JAFF.events.on('pageReady', function () {

@@ -1,11 +1,12 @@
 {% extends 'partials/base.html.twig' %}
 
-{% block jumbotron %}
-    {% if jumbotron is not null and jumbotron is not empty %}
-    {% include jumbotron %}
-    {% endif %}
-{% endblock %}
-
 {% block content %}
+    {% block jumbotron %}
+        {% if jumbotron is not null and jumbotron is not empty %}
+            {% include jumbotron %}
+        {% endif %}
+    {% endblock %}
+
     {{ imports.content }}
+
 {% endblock %}

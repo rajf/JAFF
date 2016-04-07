@@ -10,4 +10,18 @@
     {% endfor %}
     </ul>
     {% endif %}
+
+    {%
+    include "modules::/module1/module1.html.twig"
+    with {
+    'class': 'module--modifier'
+    }
+    %}
+
+    {%
+    include "modules::/module2/module2.html.twig"
+    with {
+    'class': 'module--modifier'
+    }
+    %}
 {% endblock %}

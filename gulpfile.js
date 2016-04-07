@@ -17,6 +17,7 @@ var gulp = require('gulp'),
 *   Config
 */
 var config = {
+    ghPagesPath             : '/jaff',
     srcDir                  : 'app',
     tempDir                 : '.tmp',
     distDir                 : 'dist',
@@ -309,7 +310,17 @@ gulp.task('extras', function () {
 //        .pipe(gulp.dest('app'));
 //});
 
-gulp.task('serve', ['build'], function () {
+gulp.task('setBaseURL', ['styles', 'scripts', 'pages'], function () {
+
+    gulp.src(config.tempDir + '/**/*')
+        .pipe(plugins.preprocess({context: { BASEURL: ''}}))
+        .pipe(gulp.dest(config.tempDir));
+
+});
+
+
+
+gulp.task('serve', ['setBaseURL', 'modernizr', 'images', 'extras', 'bower'], function () {
     var browserSync = require('browser-sync').create();
 
     browserSync.init({
@@ -343,9 +354,7 @@ gulp.task('serve', ['build'], function () {
 
 });
 
-gulp.task('build', ['styles', 'scripts', 'modernizr', 'images', 'extras', 'pages', 'bower']);
-
-gulp.task('minify', ['build'], function () {
+gulp.task('minify', ['styles', 'scripts', 'pages', 'modernizr', 'images', 'extras', 'bower'], function () {
     var jsFilter = plugins.filter('**/*.js'),
         cssFilter = plugins.filter('**/*.css'),
         htmlFilter = plugins.filter('**/*.html');
@@ -367,6 +376,7 @@ gulp.task('minify', ['build'], function () {
         .pipe(htmlFilter)
         .pipe(plugins.useref())
         .pipe(htmlFilter.restore())
+        .pipe(plugins.preprocess({context: { BASEURL: config.ghPagesPath}}))
         .pipe(gulp.dest(config.distDir))
         .pipe(plugins.size());
 });

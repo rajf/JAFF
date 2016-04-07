@@ -30,7 +30,7 @@
     <header class="header">
         <ul class="">
         {% for key, value in global.nav_primary %}
-            <li><a href="{{ value }}">{{ key }}</a></li>
+            <li><a href="<!-- @echo BASEURL -->{{ value }}">{{ key }}</a></li>
         {% endfor %}
         </ul>
     </header>

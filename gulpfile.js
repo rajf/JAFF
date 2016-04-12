@@ -29,10 +29,9 @@ var config = {
     concatModules           : true
 };
 
-config.globalYaml = config.srcDir + '/data/global.yaml';
 
 config.paths = {
-
+    globalYaml: config.srcDir + '/data/global.yaml',
     styles: {
         src: [
             config.srcDir + '/styles/**/*.scss'
@@ -207,7 +206,7 @@ gulp.task('pages', function () {
                 template;
 
             // parse global yaml
-            if (fileExists(config.globalYaml) && path.extname(config.globalYaml) == '.yaml')
+            if (fileExists(config.paths.globalYaml) && path.extname(config.globalYaml) == '.yaml')
                 jsonData['global'] = jsYaml.safeLoad(fs.readFileSync(config.globalYaml, 'utf-8'));
 
             //console.log(jsonData);

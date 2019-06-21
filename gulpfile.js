@@ -131,7 +131,7 @@ gulp.task('styles', function () {
         require('css-mqpacker')
     ];
 
-    return gulp.src('app/styles/main.scss')
+    return gulp.src(config.paths.styles.src, {base: config.srcDir + config.paths.styles.dest})
         .pipe(plugins.sassGlobImport())
         .pipe(plugins.sass({
                 style: 'expanded',
@@ -206,8 +206,8 @@ gulp.task('pages', function () {
                 template;
 
             // parse global yaml
-            if (fileExists(config.paths.globalYaml) && path.extname(config.globalYaml) == '.yaml')
-                jsonData['global'] = jsYaml.safeLoad(fs.readFileSync(config.globalYaml, 'utf-8'));
+            if (fileExists(config.paths.globalYaml) && path.extname(config.paths.globalYaml) == '.yaml')
+                jsonData['global'] = jsYaml.safeLoad(fs.readFileSync(config.paths.globalYaml, 'utf-8'));
 
             //console.log(jsonData);
 
@@ -246,11 +246,17 @@ gulp.task('pages', function () {
 
 gulp.task('images', function () {
     return gulp.src(config.paths.images.src)
-        .pipe(plugins.cache(plugins.imagemin({
-            optimizationLevel: 3,
-            progressive: true,
-            interlaced: true
-        })))
+        .pipe(plugins.imagemin([
+            plugins.imagemin.gifsicle({interlaced: true}),
+            plugins.imagemin.jpegtran({progressive: true}),
+            plugins.imagemin.optipng({optimizationLevel: 5}),
+            plugins.imagemin.svgo({
+                plugins: [
+                    {removeViewBox: true},
+                    {cleanupIDs: false}
+                ]
+            })
+        ]))
         .pipe(gulp.dest(config.distDir + config.paths.images.dest))
         .pipe(plugins.size())
         .on('error', function (error) {
@@ -262,7 +268,7 @@ gulp.task('bower', function() {
 
     var jsFilter = plugins.filter('**/*.js'),
         cssFilter = plugins.filter('**/*.css'),
-        fontsFilter = plugins.filter('**/*.{eot,svg,ttf,woff}');
+        fontsFilter = plugins.filter('**/*.{eot,svg,ttf,woff,woff2,otf}');
 
     return gulp.src(plugins.mainBowerFiles())
         .pipe(jsFilter)
@@ -284,7 +290,7 @@ gulp.task('bower', function() {
 });
 
 gulp.task('extras', function () {
-    return gulp.src(['app/*.*', 'app/*.html'], { dot: true })
+    return gulp.src([config.srcDir + '/*.*', config.srcDir + '/*.html'], { dot: true })
         .pipe(gulp.dest(config.distDir))
         .on('error', function (error) {
             console.error('' + error);
